@@ -1,4 +1,4 @@
-# 项目名称
+# 原神玩家锐评工具
 
 运行前：
 1. 安装依赖：`pip install -r requirements.txt`
