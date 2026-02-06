@@ -1,17 +1,24 @@
 import streamlit as st
-import time  # 用于模拟生成过程
 import calculate
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 import os
 
-load_dotenv()
+def get_api_key(key_name):
+    try:
+        # 优先尝试从Secrets中获取
+        return st.secrets.get(key_name)
+    except (KeyError, FileNotFoundError):
+        # 如果在Secrets中没找到，则回退到本地环境变量（用于开发）
+        load_dotenv()
+        return os.environ.get(key_name)
+
 llm = ChatOpenAI(
     model="moonshot-v1-8k",  # 可换成 32k 或 128k
     temperature=0.9,
     max_tokens=800,
-    openai_api_key=os.environ.get("KIMI_API_KEY"),
+    openai_api_key=get_api_key("KIMI_API_KEY"),
     openai_api_base="https://api.moonshot.cn/v1",
 )
 
