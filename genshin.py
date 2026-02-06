@@ -1,9 +1,22 @@
 import streamlit as st
 import time  # 用于模拟生成过程
 import calculate
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+import os
+
+load_dotenv()
+llm = ChatOpenAI(
+    model="moonshot-v1-8k",  # 可换成 32k 或 128k
+    temperature=0.9,
+    max_tokens=800,
+    openai_api_key=os.environ.get("KIMI_API_KEY"),
+    openai_api_base="https://api.moonshot.cn/v1",
+)
 
 # 页面配置
-st.set_page_config(page_title="生成你的原神老婆", page_icon="😍", layout="centered")
+st.set_page_config(page_title="原神玩家锐评工具", page_icon="💀", layout="centered")
 
 # 初始化 session_state
 if "massage" not in st.session_state:
@@ -32,7 +45,7 @@ character_image_map = {
 #第一部分
 @st.fragment()
 def part_1():
-    st.title("😍😍😍原神玩家锐评工具")
+    st.title("💀💀💀原神玩家锐评工具")
     st.caption("什么，你是原神玩家？输入下面的信息来找骂😋")
 
 @st.fragment()
@@ -62,27 +75,45 @@ def part_2():
                     st.spinner("请输入全部的信息！😡")
     elif st.session_state.page == "result":
         # 模拟一个有趣的生成过程（带进度条）
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-        for percent in range(101):
-            time.sleep(0.01)  # 模拟耗时
-            progress_bar.progress(percent)
-            status_text.text(f"正在思考你的心理薄弱点... 🧐{percent}%")
-        st.divider()
+        # progress_bar = st.progress(0)
+        # status_text = st.empty()
+        # for percent in range(101):
+        #     time.sleep(0.01)  # 模拟耗时
+        #     progress_bar.progress(percent)
+        #     status_text.text(f"正在思考你的心理薄弱点... 🧐{percent}%")
+        with st.spinner("正在思考你的心理薄弱点... 🧐"):
+            st.divider()
 
-        try:
-            height = float(st.session_state.massage["height"])  # 或 int(height_str)，但身高可能有小数
-            weight = float(st.session_state.massage["weight"])
-        except ValueError:
-            st.error("❌ 请输入有效的数字（可带小数点，如175、175.5），不要输入字母或特殊符号！")
-        result_comment = calculate.cutting_comment(st.session_state.massage["age"],
-                                                   height,
-                                                   weight,
-                                                   st.session_state.massage["best_character"])
-        comments_str = "<br>".join(result_comment)
-        st.markdown(
-            f"<h3 style='text-align: center;'>{comments_str}</h3>",
-            unsafe_allow_html=True)
+            try:
+                height = float(st.session_state.massage["height"])  # 或 int(height_str)，但身高可能有小数
+                weight = float(st.session_state.massage["weight"])
+            except ValueError:
+                st.error("❌ 请输入有效的数字（可带小数点，如175、175.5），不要输入字母或特殊符号！")
+            result_comment = calculate.cutting_comment(st.session_state.massage["age"],
+                                                       height,
+                                                       weight,
+                                                       st.session_state.massage["best_character"])
+            comments_str = "，".join(result_comment)
+            messages = [
+                SystemMessage(content="""你是一个用于生成有趣的对话的机器，
+                本次你将要扮演一个朋友使用尖酸刻薄的语气来对原神玩家进行评价。
+                要求：
+                - 语句要流畅通顺
+                - 使用相当尖酸刻薄的语气进行嘲讽
+                - 段落中多增加嘲讽的emoji表情包来增强情绪效果
+                - 输出纯正文，不要任何说明、标题、前言后语"""),
+                HumanMessage(content=f"""根据下面的句段内容生成评价：{comments_str}""")
+            ]
+            response = llm.invoke(
+                messages,
+                temperature=0.9,
+                max_tokens=800
+            )
+            result = response.content.strip()
+            st.markdown(
+                f"<h3 style='text-align: center;'>{result}</h3>",
+                unsafe_allow_html=True)
+            # st.write(comments_str)
 
 
         # 提供一个“重新生成”按钮，返回表单页

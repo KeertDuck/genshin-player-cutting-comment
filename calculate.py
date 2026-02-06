@@ -55,7 +55,7 @@ character = {
 
 def cutting_comment (age, height, weight, best_character):
     if best_character not in character:
-        return "这角色我数据库还没收录，你是内鬼？🫠"
+        return "仅限原神女角色，loser🫠"
 
     info = character[best_character]
     kind = info["类型"]
@@ -77,7 +77,7 @@ def cutting_comment (age, height, weight, best_character):
         comment.append("虽然不想承认，但是在身材管理这一块你确实超越了大部分原神玩家😏💅")
     elif bmi_rounded < 18.5:
         comment.append("bro在万圣节可以素颜出骷髅士兵，这么瘦还玩原神？多吃点胡桃的胡桃吧🤣👉💀")
-
+    comment.append(f"""居然喜欢{best_character}""")
     # 年龄 + 类型组合（高危优先）
     if kind == "萝莉":
         if age >= 25:
@@ -103,7 +103,10 @@ def cutting_comment (age, height, weight, best_character):
         # 体型差特殊加成
     height_difference = height-info["身高_cm"]
     if height_difference >30:
-            comment.append("人形奥特曼配小只女，变态体型控+公主抱幻想犯🙄")
+        if height >= 170:
+            comment.append("你是喜欢人形奥特曼配小只女吗？变态体型控+公主抱幻想犯🙄")
+        elif height < 170:
+            comment.append("哈哈哈哈，这个身高喜欢萝莉角色是为了显得自己更加‘高大’吗？😂👉💀")
     elif height_difference < -10 :
         comment.append("哈哈哈哈，这个身高差是在幻想年上大姐姐调教吗？🤣")
     # 极端情况
